@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="nb">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#17332D">
+<meta name="robots" content="noindex, nofollow">
+<title>Hjemme</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- Innlogging -->
+<main id="login" class="gate" hidden>
+  <h1>Hjemme</h1>
+  <form id="login-form" class="gate-form">
+    <label>E-post
+      <input type="email" id="login-email" autocomplete="username" required>
+    </label>
+    <label>Passord
+      <input type="password" id="login-pass" autocomplete="current-password" required>
+    </label>
+    <button type="submit" class="btn btn-primary">Logg inn</button>
+    <p id="login-error" class="error" role="alert" hidden></p>
+  </form>
+</main>
+
+<!-- Velg navn første gang -->
+<main id="who" class="gate" hidden>
+  <h1>Hvem er du?</h1>
+  <p>Navnet vises på det du legger inn.</p>
+  <div id="who-buttons" class="who-buttons"></div>
+</main>
+
+<!-- Dashbord -->
+<div id="app" hidden>
+  <p id="demo-banner" class="demo-banner" hidden>Demomodus: det du legger inn lagres bare i denne nettleseren. Følg OPPSETT.md for å koble til felles lagring.</p>
+
+  <header class="hero">
+    <p class="hero-date" id="hero-date"></p>
+    <h1 class="hero-dinner"><span class="hero-kicker">Middag i kveld</span><span id="hero-dinner-text" class="marker"></span></h1>
+    <p class="hero-next" id="hero-next"></p>
+  </header>
+
+  <nav class="jump" aria-label="Gå til del">
+    <a href="#middager">Middager</a>
+    <a href="#handle">Handleliste <span class="count" id="count-handle"></span></a>
+    <a href="#gjoremal">Gjøremål <span class="count" id="count-gjoremal"></span></a>
+    <a href="#stress">Stressliste <span class="count" id="count-stress"></span></a>
+    <a href="#kalender">Kalender</a>
+    <a href="#oppskrifter">Oppskrifter</a>
+    <a href="#lager">Hva vi har</a>
+    <a href="#onske">Ønskeliste <span class="count" id="count-onske"></span></a>
+  </nav>
+
+  <div class="board">
+
+    <section id="middager" class="panel panel-middager">
+      <div class="panel-head">
+        <h2>Middager</h2>
+        <div class="week-nav">
+          <button type="button" class="btn btn-quiet" id="week-prev" aria-label="Forrige uke">‹</button>
+          <span id="week-label"></span>
+          <button type="button" class="btn btn-quiet" id="week-next" aria-label="Neste uke">›</button>
+        </div>
+      </div>
+      <ol id="dinner-list" class="dinners"></ol>
+      <datalist id="recipe-names"></datalist>
+      <p class="panel-note">Skriv navnet på en lagret oppskrift, så kan handlelista lages av ingrediensene.</p>
+    </section>
+
+    <section id="handle" class="panel panel-handle">
+      <div class="panel-head"><h2>Handleliste</h2>
+        <button type="button" class="btn btn-quiet clear" data-clear="handle" hidden>Fjern avkryssede</button></div>
+      <form class="add" data-list="handle">
+        <input type="text" name="text" placeholder="Legg til vare" aria-label="Vare" required maxlength="200" enterkeyhint="done">
+        <button type="submit" class="btn btn-primary">Legg til</button>
+      </form>
+      <button type="button" class="btn btn-outline" id="gen-handle">Lag handleliste fra ukas middager</button>
+      <p class="panel-note" id="handle-result" role="status" hidden></p>
+      <ul class="items" id="list-handle"></ul>
+    </section>
+
+    <section id="gjoremal" class="panel panel-gjoremal">
+      <div class="panel-head"><h2>Gjøremål</h2>
+        <button type="button" class="btn btn-quiet clear" data-clear="gjoremal" hidden>Fjern ferdige</button></div>
+      <form class="add add-wide" data-list="gjoremal">
+        <input type="text" name="text" placeholder="Hva må gjøres?" aria-label="Gjøremål" required maxlength="200" enterkeyhint="done">
+        <select name="who" aria-label="Hvem gjør det"></select>
+        <input type="date" name="due" aria-label="Frist (valgfritt)">
+        <button type="submit" class="btn btn-primary">Legg til</button>
+      </form>
+      <ul class="items" id="list-gjoremal"></ul>
+    </section>
+
+    <section id="stress" class="panel panel-stress">
+      <div class="panel-head"><h2>Stressliste</h2>
+        <button type="button" class="btn btn-quiet clear" data-clear="stress" hidden>Fjern løste</button></div>
+      <p class="panel-note">Ting som ligger og gnager. Skriv det ned, så vet den andre om det.</p>
+      <form class="add" data-list="stress">
+        <input type="text" name="text" placeholder="Hva stresser deg?" aria-label="Det som stresser" required maxlength="300" enterkeyhint="done">
+        <button type="submit" class="btn btn-primary">Legg til</button>
+      </form>
+      <ul class="items" id="list-stress"></ul>
+    </section>
+
+    <section id="kalender" class="panel panel-kalender">
+      <div class="panel-head"><h2>Kalender</h2>
+        <button type="button" class="btn btn-quiet" id="cal-refresh">Oppdater</button></div>
+      <form class="add add-wide" id="event-form">
+        <input type="text" name="text" placeholder="Hva skjer?" aria-label="Hendelse" required maxlength="200" enterkeyhint="done">
+        <input type="date" name="day" aria-label="Dato" required>
+        <input type="time" name="time" aria-label="Klokkeslett (valgfritt)">
+        <button type="submit" class="btn btn-primary">Legg til</button>
+      </form>
+      <div id="calendar"></div>
+    </section>
+
+    <section id="onske" class="panel panel-onske">
+      <div class="panel-head"><h2>Ønskeliste</h2>
+        <button type="button" class="btn btn-quiet clear" data-clear="onske" hidden>Fjern kjøpte</button></div>
+      <form class="add add-wide" data-list="onske">
+        <input type="text" name="text" placeholder="Hva ønsker dere?" aria-label="Ønske" required maxlength="200" enterkeyhint="done">
+        <select name="who" aria-label="Hvem er det til"></select>
+        <input type="url" name="url" placeholder="Lenke (valgfritt)" aria-label="Lenke (valgfritt)">
+        <button type="submit" class="btn btn-primary">Legg til</button>
+      </form>
+      <ul class="items" id="list-onske"></ul>
+    </section>
+
+    <section id="oppskrifter" class="panel panel-oppskrifter">
+      <div class="panel-head"><h2>Oppskrifter</h2></div>
+      <form class="add add-stack" id="recipe-form">
+        <input type="hidden" name="id">
+        <input type="text" name="text" placeholder="Navn på retten" aria-label="Navn på retten" required maxlength="120">
+        <textarea name="ingredients" rows="5" placeholder="Ingredienser, én per linje&#10;400 g kjøttdeig&#10;1 løk" aria-label="Ingredienser, én per linje" required></textarea>
+        <input type="url" name="url" placeholder="Lenke til oppskriften (valgfritt)" aria-label="Lenke til oppskriften (valgfritt)">
+        <div class="row">
+          <button type="submit" class="btn btn-primary" id="recipe-save">Lagre oppskrift</button>
+          <button type="button" class="btn btn-quiet" id="recipe-cancel" hidden>Avbryt</button>
+        </div>
+      </form>
+      <ul class="items" id="list-oppskrift"></ul>
+    </section>
+
+    <section id="lager" class="panel panel-lager">
+      <div class="panel-head"><h2>Hva vi har</h2></div>
+      <p class="panel-note">Varer som står her blir ikke lagt på handlelista. Slett dem når de er brukt opp.</p>
+      <form class="add add-wide" id="pantry-form">
+        <input type="text" name="text" placeholder="Vare" aria-label="Vare" required maxlength="120" enterkeyhint="done">
+        <select name="place" aria-label="Hvor ligger den">
+          <option value="kjoleskap">Kjøleskap</option>
+          <option value="fryser">Fryser</option>
+          <option value="skap">Skap</option>
+        </select>
+        <button type="submit" class="btn btn-primary btn-half">Legg til</button>
+      </form>
+      <div id="pantry"></div>
+    </section>
+
+  </div>
+
+  <footer class="foot">
+    <span id="foot-user"></span>
+    <button type="button" class="btn btn-quiet" id="logout" hidden>Logg ut</button>
+  </footer>
+  <p id="toast" class="toast" role="status" hidden></p>
+</div>
+
+<script type="module" src="app.js"></script>
+</body>
+</html>
