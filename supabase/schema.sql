@@ -37,6 +37,9 @@ drop policy if exists "innlogget full tilgang" on public.dinners;
 create policy "innlogget full tilgang" on public.dinners
   for all to authenticated using (true) with check (true);
 
+-- Nye Supabase-prosjekter gir ikke tabelltilgang automatisk. Innloggede trenger den i tillegg til reglene over.
+grant select, insert, update, delete on public.items, public.dinners to authenticated;
+
 -- Sanntid: endringer dukker opp hos den andre uten å laste siden på nytt.
 do $$
 begin
